@@ -1,17 +1,20 @@
 var issuesContEl = document.querySelector("#issues-container");
+var limitEl = document.querySelector("#limit-warning");
 
 var getRepoIssues = function(repo) {
     var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
    
     fetch(apiUrl).then(function(response) {
-        if (response.ok) {
-            response.json()
-            .then(function(data){
-                
 
+        if (response.ok) {
+            response.json().then(function(data){
+            
                 displayIssues(data);
 
-                
+                if(response.headers.get("link")) {
+                    displayWarning(repo)
+                }
+            
             })
         } else {
             alert("There was a problem with your request. Please try again.");
@@ -42,7 +45,7 @@ var displayIssues = function(issues) {
         issuesEl.appendChild(issueTitle);
         //Type of issue
         var issueType = document.createElement("span");
-
+        
         if (issues[i].pull_request) {
             issueType.textContent = "(Pull request)"
         } else {
@@ -56,4 +59,15 @@ var displayIssues = function(issues) {
 
 }
 
-getRepoIssues("4Charlie4/git-it-done");
+var displayWarning = function(repo) {
+
+    limitEl.textContent = "There are more than 30 issues. To see more,  "
+    var linkEl = document.createElement("a");
+    linkEl.textContent = "visit GitHub.com"
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkEl.setAttribute("target", "_blank");
+
+    limitEl.appendChild(linkEl);
+}
+
+getRepoIssues("facebook/react");
