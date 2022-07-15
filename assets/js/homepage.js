@@ -9,15 +9,25 @@ var getUserRepos = function(user) {
     
     var apiUrl = "https://api.github.com/users/" + user + "/repos";
 
-    fetch(apiUrl).then(function(response){
-        response.json().then(function(data){
-            displayRepos(data, user);
-            console.log(data);
+   fetch(apiUrl)
+   .then(function(response){
+    if (response.ok) {
+        response.json()
+        .then(function(data){
+            displayRepos(data,user);
         });
+    } else {
+        alert("Error: User not Found");
+    }
+ })
+    //catch connection errors 
+    .catch(function(error){
+        alert("Unable to connect to GitHub");
     });
+};
 
     
-};
+
 
 //function that handles form event
 var formSubmitHandler = function(event) {
@@ -39,6 +49,11 @@ var formSubmitHandler = function(event) {
 
 //displaying repos and info
 var displayRepos = function(repos, searchTerm) {
+
+    if (repos.length === 0) {
+        repoContEl.textContent = "No Repositories found.";
+        return;
+    };
 
     //clear out and replace previously displayed content
     repoContEl.textContent = "";
@@ -68,7 +83,7 @@ var displayRepos = function(repos, searchTerm) {
             issuesEl.innerHTML =
                 "<i class= 'fas fa-times status-icon icon-danger'></i>" + repos[i].open_issues_count + 'issue(s)';
         } else {
-            issuesEl.innerHTMl = 
+            issuesEl.innerHTML = 
             "<i class='fas fa-check-square status-icon icon-success'></i>";
         }
         
