@@ -1,5 +1,6 @@
 var issuesContEl = document.querySelector("#issues-container");
 var limitEl = document.querySelector("#limit-warning");
+var repoNameEl = document.querySelector("#repo-name");
 
 var getRepoIssues = function(repo) {
     var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
@@ -8,22 +9,39 @@ var getRepoIssues = function(repo) {
 
         if (response.ok) {
             response.json().then(function(data){
-            
+                
                 displayIssues(data);
 
+                //checks if API can't list all of the issues on page (GitHub API will only send 30 on a page)
                 if(response.headers.get("link")) {
                     displayWarning(repo)
                 }
             
             })
         } else {
-            alert("There was a problem with your request. Please try again.");
+            document.location.replace("./index.html");
         }
     })
     
     
 }
-
+//grabs the correct repo chosen
+var getRepoName = function() {
+    //finds and formats repo name
+    var queryString = document.location.search;
+    var repoName = queryString.split("=")[1];
+    
+    if (repoName) {
+        //upon valid repo name chosen
+        repoNameEl.textContent = repoName;
+        getRepoIssues(repoName);
+        //returns to previous page if no valid repo
+    } else {    
+        document.location.replace("./index.html");
+    }
+    
+}
+//displays issues from repo  on page 
 var displayIssues = function(issues) {
 
     if (issues.length === 0) {
@@ -45,8 +63,9 @@ var displayIssues = function(issues) {
         issuesEl.appendChild(issueTitle);
         //Type of issue
         var issueType = document.createElement("span");
-        
+        //checks if the issue was pull requested or not and displays on page
         if (issues[i].pull_request) {
+
             issueType.textContent = "(Pull request)"
         } else {
             issueType.textContent = "(Issue)";
@@ -70,4 +89,7 @@ var displayWarning = function(repo) {
     limitEl.appendChild(linkEl);
 }
 
-getRepoIssues("facebook/react");
+
+
+
+getRepoName();
